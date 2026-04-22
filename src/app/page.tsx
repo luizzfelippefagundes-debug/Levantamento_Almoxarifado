@@ -15,6 +15,8 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [results, setResults] = useState<{ units: any[], items: any[] } | null>(null)
+  const [aiResponse, setAiResponse] = useState<string | null>(null)
+  const [isAiLoading, setIsAiLoading] = useState(false)
 
   useEffect(() => {
     fetch('/api/dashboard')
@@ -27,6 +29,7 @@ export default function DashboardPage() {
       handleSearch(searchTerm)
     } else {
       setResults(null)
+      setAiResponse(null)
     }
   }, [searchTerm])
 
@@ -55,6 +58,27 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleAIAsk() {
+    if (!searchTerm) return
+    setIsAiLoading(true)
+    setAiResponse(null)
+    try {
+      const res = await fetch('/api/ai/compatibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelName: searchTerm, type: 'chat' })
+      })
+      const data = await res.json()
+      if (data.result) setAiResponse(data.result)
+      else if (data.tip) setAiResponse(`Dica: ${data.tip}`)
+      else setAiResponse("Ops, não consegui processar sua dúvida agora.")
+    } catch (e) {
+      setAiResponse("Erro ao consultar o assistente.")
+    } finally {
+      setIsAiLoading(false)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -65,18 +89,30 @@ export default function DashboardPage() {
         <div className={styles.searchBox}>
           <input
             type="search"
-            placeholder="Pesquisar unidade, toner ou impressora..."
+            placeholder="Pesquisar ou tirar dúvidas com a IA..."
             className="input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleAIAsk()}
           />
-          <button className="btn btn-primary" onClick={() => handleSearch(searchTerm)}>🔍 Buscar</button>
+          <button className="btn btn-primary" onClick={handleAIAsk} disabled={isAiLoading}>
+            {isAiLoading ? 'Pensando...' : '✨ Perguntar à IA'}
+          </button>
 
-          {results && (
+          {(results || aiResponse || isAiLoading) && (
             <div className={styles.searchResults}>
-              {results.units.length > 0 && (
+              {aiResponse && (
+                <div className={styles.aiBubble}>
+                  <div className={styles.aiHeader}>✨ Assistente IA</div>
+                  <p>{aiResponse}</p>
+                </div>
+              )}
+
+              {isAiLoading && <p className={styles.loading}>Chamando o expert...</p>}
+
+              {results && results.units.length > 0 && (
                 <div className={styles.resultGroup}>
-                  <h4>Unidades</h4>
+                  <h4>Suas Unidades</h4>
                   {results.units.map((u: any) => (
                     <Link key={u.id} href={`/inventory?unitId=${u.id}`} className={styles.resultItem}>
                       🏢 {u.name}
@@ -84,9 +120,9 @@ export default function DashboardPage() {
                   ))}
                 </div>
               )}
-              {results.items.length > 0 && (
+              {results && results.items.length > 0 && (
                 <div className={styles.resultGroup}>
-                  <h4>Modelos (Impressoras/Toners)</h4>
+                  <h4>Seus Modelos</h4>
                   {results.items.map((item: any) => (
                     <Link key={item.id} href="/toners" className={styles.resultItem}>
                       📦 {item.name} {item.brand ? `(${item.brand})` : ''}
@@ -94,8 +130,11 @@ export default function DashboardPage() {
                   ))}
                 </div>
               )}
-              {results.units.length === 0 && results.items.length === 0 && (
-                <p className={styles.noResults}>Nenhum resultado encontrado.</p>
+              {results && results.units.length === 0 && results.items.length === 0 && !aiResponse && !isAiLoading && (
+                <div className={styles.noResults}>
+                  <p>Nenhum item local encontrado.</p>
+                  <button className="btn" onClick={handleAIAsk}>Tentar busca global com IA ✨</button>
+                </div>
               )}
             </div>
           )}
