@@ -9,7 +9,8 @@ export async function GET() {
         })
         return NextResponse.json(printers)
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch printers' }, { status: 500 })
+        console.error('Fetch printers error:', error)
+        return NextResponse.json({ error: 'Failed to fetch printers', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }
 

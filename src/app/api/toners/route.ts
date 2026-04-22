@@ -9,7 +9,8 @@ export async function GET() {
         })
         return NextResponse.json(toners)
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch toners' }, { status: 500 })
+        console.error('Fetch toners error:', error)
+        return NextResponse.json({ error: 'Failed to fetch toners', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }
 

@@ -30,6 +30,7 @@ export async function GET() {
             criticalCount: criticalItems.length
         })
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
+        console.error('Dashboard error:', error)
+        return NextResponse.json({ error: 'Failed to fetch dashboard stats', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }
