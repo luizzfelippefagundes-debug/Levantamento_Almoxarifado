@@ -1,0 +1,67 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.header p {
+    color: var(--secondary);
+}
+
+.unitSelector {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.unitSelector label {
+    font-weight: 500;
+    color: var(--secondary);
+}
+
+.tonerList h2 {
+    margin-bottom: 1.5rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.tonerCard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tonerInfo {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.tonerName {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.stockInput {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.stockInput label {
+    font-size: 0.875rem;
+    color: var(--secondary);
+}
+
+.stockInput input {
+    max-width: 80px;
+}

@@ -1,0 +1,39 @@
+import { NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
+
+export async function GET(request: Request) {
+    const { searchParams } = new URL(request.url)
+    const unitId = searchParams.get('unitId')
+
+    try {
+        const stocks = await prisma.stock.findMany({
+            where: unitId ? { unitId } : {},
+            include: { toner: true }
+        })
+        return NextResponse.json(stocks)
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to fetch stocks' }, { status: 500 })
+    }
+}
+
+export async function POST(request: Request) {
+    try {
+        const body = await request.json()
+        const { unitId, tonerId, quantity } = body
+
+        const stock = await prisma.stock.upsert({
+            where: {
+                unitId_tonerId: { unitId, tonerId }
+            },
+            update: { quantity: parseInt(quantity) },
+            create: {
+                unitId,
+                tonerId,
+                quantity: parseInt(quantity)
+            }
+        })
+        return NextResponse.json(stock)
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to update stock' }, { status: 500 })
+    }
+}

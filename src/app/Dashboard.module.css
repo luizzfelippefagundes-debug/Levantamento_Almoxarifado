@@ -1,0 +1,92 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.header p {
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+.statLabel {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--secondary);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.statValue {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--foreground);
+    margin-bottom: 1rem;
+}
+
+.statLink {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.criticalCard .statValue {
+    color: var(--danger);
+}
+
+.actions h2 {
+    margin-bottom: 1.5rem;
+}
+
+.actionGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.actionCard {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.actionCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.actionCard h3 {
+    margin-bottom: 0.75rem;
+    color: var(--primary);
+}
+
+.actionCard p {
+    color: var(--secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 992px) {
+    .statsGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .actionGrid {
+        grid-template-columns: 1fr;
+    }
+}

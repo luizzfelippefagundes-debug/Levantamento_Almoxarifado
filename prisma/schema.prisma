@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Unit {
+  id        String   @id @default(cuid())
+  name      String
+  location  String?
+  stocks    Stock[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PrinterModel {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  brand     String
+  toners    TonerModel[] @relation("TonerToPrinter")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TonerModel {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  printers  PrinterModel[] @relation("TonerToPrinter")
+  stocks    Stock[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Stock {
+  id        String   @id @default(cuid())
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  unitId    String
+  toner     TonerModel @relation(fields: [tonerId], references: [id])
+  tonerId   String
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([unitId, tonerId])
+}

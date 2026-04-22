@@ -1,0 +1,82 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.header p {
+    color: var(--secondary);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.table th {
+    background: var(--background);
+    font-weight: 600;
+    color: var(--secondary);
+    font-size: 0.875rem;
+}
+
+.tonerName {
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.lowStock {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badgeSuccess {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badgeWarning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badgeDanger {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.printAction {
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media print {
+    .printAction {
+        display: none;
+    }
+
+    .page {
+        margin: 0;
+        padding: 0;
+    }
+}
