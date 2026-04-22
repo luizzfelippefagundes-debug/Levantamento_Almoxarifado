@@ -20,6 +20,15 @@ export async function GET(request: Request) {
                         { name: { contains: q, mode: 'insensitive' } },
                         { brand: { contains: q, mode: 'insensitive' } }
                     ]
+                },
+                include: {
+                    toners: {
+                        include: {
+                            stocks: {
+                                include: { unit: true }
+                            }
+                        }
+                    }
                 }
             }),
             prisma.tonerModel.findMany({
@@ -30,7 +39,6 @@ export async function GET(request: Request) {
                     }
                 }
             }),
-            // Look for units that HAVE a certain toner in stock
             prisma.stock.findMany({
                 where: {
                     OR: [
@@ -45,15 +53,35 @@ export async function GET(request: Request) {
             })
         ])
 
+        // Aggregating stocks from multiple sources
+        const allStockItems = [...stocks.map(s => ({
+            unit: s.unit.name,
+            unitId: s.unit.id,
+            toner: s.toner.name,
+            quantity: s.quantity
+        }))];
+
+        // If a printer was found, add stocks of all toners compatible with it
+        printers.forEach(printer => {
+            printer.toners.forEach(toner => {
+                toner.stocks.forEach(s => {
+                    // Avoid duplicates
+                    if (!allStockItems.find(item => item.unitId === s.unitId && item.toner === toner.name)) {
+                        allStockItems.push({
+                            unit: s.unit.name,
+                            unitId: s.unit.id,
+                            toner: toner.name,
+                            quantity: s.quantity
+                        });
+                    }
+                });
+            });
+        });
+
         return NextResponse.json({
             units,
             models: [...printers, ...toners],
-            stocks: stocks.map(s => ({
-                unit: s.unit.name,
-                unitId: s.unit.id,
-                toner: s.toner.name,
-                quantity: s.quantity
-            }))
+            stocks: allStockItems
         })
     } catch (error) {
         console.error('Search error:', error)
