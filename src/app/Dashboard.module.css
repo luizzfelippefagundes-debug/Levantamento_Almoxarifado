@@ -41,6 +41,23 @@
     color: var(--input-text);
 }
 
+.cameraBtn {
+    background: var(--input-bg);
+    border: none;
+    font-size: 1.25rem;
+    padding: 0 0.75rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.cameraBtn:hover {
+    opacity: 0.7;
+}
+
 .searchResults {
     position: absolute;
     top: 100%;

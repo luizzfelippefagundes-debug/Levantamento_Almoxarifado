@@ -79,6 +79,41 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsAiLoading(true)
+    setAiResponse(null)
+    setSearchTerm("Analisando imagem...")
+
+    try {
+      const reader = new FileReader()
+      reader.onloadend = async () => {
+        const base64 = reader.result as string
+        const res = await fetch('/api/ai/compatibility', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64 })
+        })
+        const data = await res.json()
+        if (data.result) {
+          setAiResponse(`🔍 Scan Concluído: Parecem ser componentes para "${data.result}".`)
+          setSearchTerm(data.result)
+          handleSearch(data.result)
+        } else {
+          setAiResponse("Não consegui identificar a impressora na foto.")
+          setSearchTerm("")
+        }
+      }
+      reader.readAsDataURL(file)
+    } catch (e) {
+      setAiResponse("Erro ao processar imagem.")
+    } finally {
+      setIsAiLoading(false)
+    }
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -95,6 +130,17 @@ export default function DashboardPage() {
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAIAsk()}
           />
+          <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            onChange={handleImageSelect}
+          />
+          <button className={styles.cameraBtn} onClick={() => document.getElementById('cameraInput')?.click()} title="Escanear Impressora">
+            📷
+          </button>
           <button className="btn btn-primary" onClick={handleAIAsk} disabled={isAiLoading}>
             {isAiLoading ? 'Pensando...' : '✨ Perguntar à IA'}
           </button>
