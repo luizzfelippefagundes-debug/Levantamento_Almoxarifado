@@ -20,17 +20,21 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { unitId, tonerId, quantity } = body
+        const { unitId, tonerId, quantity, imageUrl } = body
 
         const stock = await prisma.stock.upsert({
             where: {
                 unitId_tonerId: { unitId, tonerId }
             },
-            update: { quantity: parseInt(quantity) },
+            update: {
+                quantity: parseInt(quantity),
+                imageUrl: imageUrl || undefined
+            },
             create: {
                 unitId,
                 tonerId,
-                quantity: parseInt(quantity)
+                quantity: parseInt(quantity),
+                imageUrl: imageUrl || undefined
             }
         })
         return NextResponse.json(stock)

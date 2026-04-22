@@ -11,6 +11,7 @@ export default function Navbar() {
                 <div className={styles.links}>
                     <Link href="/units">Unidades</Link>
                     <Link href="/toners">Toners</Link>
+                    <Link href="/labels">Etiquetas</Link>
                     <Link href="/inventory">Levantamento</Link>
                     <Link href="/report">Relatório</Link>
                 </div>

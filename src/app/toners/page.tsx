@@ -162,44 +162,60 @@ export default function TonersPage() {
             <section className={styles.tablesSection}>
                 <div className="card">
                     <h3>Modelos de Impressoras</h3>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Marca</th>
-                                <th>Modelo</th>
-                                <th>Toners</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {printers.map(p => (
-                                <tr key={p.id}>
-                                    <td>{p.brand}</td>
-                                    <td>{p.name}</td>
-                                    <td>{p.toners.map(t => t.name).join(', ') || '-'}</td>
+                    <div className="tableContainer">
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Toners Compatíveis</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {printers.map(p => (
+                                    <tr key={p.id}>
+                                        <td><strong>{p.brand}</strong></td>
+                                        <td>{p.name}</td>
+                                        <td>
+                                            <div className={styles.badgeList}>
+                                                {p.toners.length > 0 ? p.toners.map(t => (
+                                                    <span key={t.id} className={styles.badge}>{t.name}</span>
+                                                )) : <span className={styles.empty}>Nenhum</span>}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div className="card">
                     <h3>Modelos de Toners</h3>
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Modelo</th>
-                                <th>Impressoras Compatíveis</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {toners.map(t => (
-                                <tr key={t.id}>
-                                    <td>{t.name}</td>
-                                    <td>{t.printers.map(p => p.name).join(', ') || '-'}</td>
+                    <div className="tableContainer">
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <th>Impressoras Compatíveis</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {toners.map(t => (
+                                    <tr key={t.id}>
+                                        <td><strong>{t.name}</strong></td>
+                                        <td>
+                                            <div className={styles.badgeList}>
+                                                {t.printers.length > 0 ? t.printers.map(p => (
+                                                    <span key={p.id} className={styles.badge}>{p.name} ({p.brand})</span>
+                                                )) : <span className={styles.empty}>Nenhuma</span>}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
         </div>

@@ -44,6 +44,7 @@ model Stock {
   toner     TonerModel @relation(fields: [tonerId], references: [id])
   tonerId   String
   quantity  Int      @default(0)
+  imageUrl  String?  @db.Text
   updatedAt DateTime @updatedAt
 
   @@unique([unitId, tonerId])
