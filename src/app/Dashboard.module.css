@@ -37,8 +37,8 @@
 .searchBox input {
     flex: 1;
     border: none;
-    background: white;
-    color: var(--foreground);
+    background: var(--input-bg);
+    color: var(--input-text);
 }
 
 .searchResults {
@@ -46,8 +46,9 @@
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--card);
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     margin-top: 0.5rem;
     z-index: 100;
@@ -58,8 +59,8 @@
 }
 
 .aiBubble {
-    background: #f5f3ff;
-    border: 1px solid #ddd6fe;
+    background: var(--background);
+    border: 1px solid var(--primary);
     padding: 1rem;
     border-radius: var(--radius);
     margin-bottom: 1rem;
@@ -68,7 +69,7 @@
 
 .aiHeader {
     font-weight: 800;
-    color: #7c3aed;
+    color: var(--primary);
     font-size: 0.75rem;
     text-transform: uppercase;
     margin-bottom: 0.5rem;
@@ -80,7 +81,7 @@
 .aiBubble p {
     font-size: 0.95rem;
     line-height: 1.5;
-    color: #4c1d95;
+    color: var(--foreground);
     margin: 0;
 }
 
@@ -131,6 +132,32 @@
 .resultItem:hover {
     background: var(--background);
     color: var(--primary);
+}
+
+.stockDetails {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.stockUnit {
+    font-size: 0.95rem;
+    color: var(--foreground);
+    font-weight: 600;
+}
+
+.stockInfo {
+    font-size: 0.85rem;
+    color: var(--secondary);
+    background: var(--background);
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+
+.stockInfo strong {
+    color: var(--primary);
+    font-weight: 800;
 }
 
 .noResults {

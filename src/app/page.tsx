@@ -11,10 +11,16 @@ interface Stats {
   criticalCount: number
 }
 
+interface SearchResult {
+  units: any[]
+  models: any[]
+  stocks: any[]
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [results, setResults] = useState<{ units: any[], items: any[] } | null>(null)
+  const [results, setResults] = useState<SearchResult | null>(null)
   const [aiResponse, setAiResponse] = useState<string | null>(null)
   const [isAiLoading, setIsAiLoading] = useState(false)
 
@@ -25,34 +31,22 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    if (searchTerm.length > 2) {
-      handleSearch(searchTerm)
-    } else {
-      setResults(null)
-      setAiResponse(null)
-    }
+    const timer = setTimeout(() => {
+      if (searchTerm.length > 2) {
+        handleSearch(searchTerm)
+      } else {
+        setResults(null)
+        if (!isAiLoading) setAiResponse(null)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
   }, [searchTerm])
 
   async function handleSearch(term: string) {
     try {
-      const [uRes, pRes, tRes] = await Promise.all([
-        fetch('/api/units'),
-        fetch('/api/printers'),
-        fetch('/api/toners')
-      ])
-      const [uData, pData, tData] = await Promise.all([
-        uRes.json(),
-        pRes.json(),
-        tRes.json()
-      ])
-
-      const filteredUnits = Array.isArray(uData) ? uData.filter((u: any) => u.name.toLowerCase().includes(term.toLowerCase())) : []
-      const filteredItems = [
-        ...(Array.isArray(pData) ? pData.filter((p: any) => p.name.toLowerCase().includes(term.toLowerCase()) || p.brand.toLowerCase().includes(term.toLowerCase())) : []),
-        ...(Array.isArray(tData) ? tData.filter((t: any) => t.name.toLowerCase().includes(term.toLowerCase())) : [])
-      ]
-
-      setResults({ units: filteredUnits, items: filteredItems })
+      const res = await fetch(`/api/search?q=${encodeURIComponent(term)}`)
+      const data = await res.json()
+      setResults(data)
     } catch (e) {
       console.error(e)
     }
@@ -69,9 +63,15 @@ export default function DashboardPage() {
         body: JSON.stringify({ modelName: searchTerm, type: 'chat' })
       })
       const data = await res.json()
-      if (data.result) setAiResponse(data.result)
-      else if (data.tip) setAiResponse(`Dica: ${data.tip}`)
-      else setAiResponse("Ops, não consegui processar sua dúvida agora.")
+      if (data.result) {
+        setAiResponse(data.result)
+      } else if (data.details) {
+        setAiResponse(`Erro Técnico: ${data.details}`)
+      } else if (data.tip) {
+        setAiResponse(`Dica: ${data.tip}`)
+      } else {
+        setAiResponse("Ops, não consegui processar sua dúvida agora.")
+      }
     } catch (e) {
       setAiResponse("Erro ao consultar o assistente.")
     } finally {
@@ -89,7 +89,7 @@ export default function DashboardPage() {
         <div className={styles.searchBox}>
           <input
             type="search"
-            placeholder="Pesquisar ou tirar dúvidas com a IA..."
+            placeholder="Pesquise unidades, modelos ou tire dúvidas com a IA..."
             className="input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -110,30 +110,48 @@ export default function DashboardPage() {
 
               {isAiLoading && <p className={styles.loading}>Chamando o expert...</p>}
 
+              {results && results.stocks.length > 0 && (
+                <div className={styles.resultGroup}>
+                  <h4>🗺️ Onde tem estoque?</h4>
+                  {results.stocks.map((s: any, idx: number) => (
+                    <Link key={idx} href={`/inventory?unitId=${s.unitId}`} className={styles.resultItem}>
+                      <div className={styles.stockDetails}>
+                        <span className={styles.stockUnit}>🏢 {s.unit}</span>
+                        <span className={styles.stockInfo}>
+                          <strong>{s.quantity}x</strong> {s.toner}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
               {results && results.units.length > 0 && (
                 <div className={styles.resultGroup}>
-                  <h4>Suas Unidades</h4>
+                  <h4>🏢 Unidades</h4>
                   {results.units.map((u: any) => (
                     <Link key={u.id} href={`/inventory?unitId=${u.id}`} className={styles.resultItem}>
-                      🏢 {u.name}
+                      {u.name} <small>{u.location || ''}</small>
                     </Link>
                   ))}
                 </div>
               )}
-              {results && results.items.length > 0 && (
+
+              {results && results.models.length > 0 && (
                 <div className={styles.resultGroup}>
-                  <h4>Seus Modelos</h4>
-                  {results.items.map((item: any) => (
+                  <h4>📦 Catálogo Técnico</h4>
+                  {results.models.map((item: any) => (
                     <Link key={item.id} href="/toners" className={styles.resultItem}>
-                      📦 {item.name} {item.brand ? `(${item.brand})` : ''}
+                      {item.name} {item.brand ? `(${item.brand})` : ''}
                     </Link>
                   ))}
                 </div>
               )}
-              {results && results.units.length === 0 && results.items.length === 0 && !aiResponse && !isAiLoading && (
+
+              {results && results.units.length === 0 && results.models.length === 0 && results.stocks.length === 0 && !aiResponse && !isAiLoading && (
                 <div className={styles.noResults}>
                   <p>Nenhum item local encontrado.</p>
-                  <button className="btn" onClick={handleAIAsk}>Tentar busca global com IA ✨</button>
+                  <button className="btn" onClick={handleAIAsk}>Perguntar à IA Global ✨</button>
                 </div>
               )}
             </div>
