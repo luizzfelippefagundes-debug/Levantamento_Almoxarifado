@@ -1,16 +1,16 @@
 .nav {
     background: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 1rem 0;
+    padding: 0.75rem 0;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -18,25 +18,48 @@
 
 .logo {
     font-size: 1.25rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--primary);
+    text-decoration: none;
 }
 
-.links {
+.menuBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
     display: flex;
     align-items: center;
-    gap: 1.5rem;
 }
 
-.links a {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--secondary);
-    transition: color 0.2s;
+.hamburger {
+    width: 24px;
+    height: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.links a:hover {
-    color: var(--primary);
+.hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: var(--foreground);
+    border-radius: 2px;
+    transition: all 0.3s ease-in-out;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
 }
 
 .themeToggle {
@@ -44,12 +67,12 @@
     border: 1px solid var(--border);
     padding: 0.4rem;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.1rem;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -59,16 +82,97 @@
     background: var(--border);
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 0 1rem;
-    }
+/* Sidebar Styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100vh;
+    background: var(--card);
+    z-index: 2000;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
 
-    .links {
-        gap: 0.75rem;
-    }
+.sidebar.open {
+    left: 0;
+}
 
-    .links a {
-        font-size: 0.8rem;
-    }
+.sidebarHeader {
+    padding: 2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.sidebarHeader h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary);
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--secondary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.sidebarLinks {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebarLinks a {
+    padding: 1rem;
+    text-decoration: none;
+    color: var(--foreground);
+    font-weight: 600;
+    border-radius: var(--radius);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sidebarLinks a:hover {
+    background: var(--background);
+    color: var(--primary);
+    transform: translateX(5px);
+}
+
+.sidebarFooter {
+    padding: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--secondary);
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1500;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+}
+
+.backdrop.visible {
+    opacity: 1;
+    visibility: visible;
 }
