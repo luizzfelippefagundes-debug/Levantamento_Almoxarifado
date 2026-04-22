@@ -8,6 +8,10 @@ declare global {
     var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
+if (!process.env.DATABASE_URL) {
+    console.error("CRITICAL: DATABASE_URL is not defined in environment variables!")
+}
+
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
 
 export default prisma

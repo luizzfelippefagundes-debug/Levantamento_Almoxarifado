@@ -8,7 +8,8 @@ export async function GET() {
         })
         return NextResponse.json(units)
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch units' }, { status: 500 })
+        console.error('Fetch units error:', error)
+        return NextResponse.json({ error: 'Failed to fetch units', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }
 
