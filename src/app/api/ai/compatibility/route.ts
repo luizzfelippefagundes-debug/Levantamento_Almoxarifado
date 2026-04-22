@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: Request) {
     try {
@@ -17,8 +18,22 @@ export async function POST(request: Request) {
 
         const genAI = new GoogleGenerativeAI(apiKey);
 
+        // Fetch local context
+        const [localPrinters, localToners] = await Promise.all([
+            prisma.printerModel.findMany({ select: { name: true, brand: true } }),
+            prisma.tonerModel.findMany({ select: { name: true } })
+        ]);
+
+        const catalogContext = `
+        CATÁLOGO LOCAL DA PREFEITURA:
+        Impressoras: ${localPrinters.map(p => `${p.brand} ${p.name}`).join(', ')}
+        Toners: ${localToners.map(t => t.name).join(', ')}
+        
+        Sempre verifique se o modelo que o usuário perguntou existe (ou tem algo parecido) no Catálogo Local acima.
+        `;
+
         // Try models available in the current environment (2026)
-        const modelsToTry = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-pro"];
+        const modelsToTry = ["gemini-2.0-flash", "gemini-pro"];
         let lastError = null;
 
         for (const modelId of modelsToTry) {
@@ -26,7 +41,13 @@ export async function POST(request: Request) {
                 const model = genAI.getGenerativeModel({ model: modelId });
 
                 if (image) {
-                    const prompt = `Identifique o modelo exato desta impressora ou toner na imagem. Responda apenas o nome do modelo (ex: HP Laserjet M404n). Se não identificar nada, responda "Não identificado".`;
+                    const prompt = `
+                    ${catalogContext}
+                    Identifique o modelo exato desta impressora ou toner na imagem. 
+                    Responda apenas o nome do modelo (ex: HP Laserjet M404n). 
+                    Se o modelo for muito parecido com um que já temos no CATÁLOGO LOCAL, use o nome exato do catálogo. 
+                    Se não identificar nada, responda "Não identificado".`;
+
                     const imageParts = [{
                         inlineData: {
                             data: image.split(',')[1],
@@ -39,7 +60,13 @@ export async function POST(request: Request) {
                 }
 
                 if (type === 'chat') {
-                    const prompt = `Você é um assistente técnico especialista em impressoras e toners da prefeitura. Responda de forma curta e objetiva à seguinte dúvida do usuário: "${modelName}". Se for sobre compatibilidade, seja específico. Se não souber, diga que não tem essa informação.`;
+                    const prompt = `
+                    ${catalogContext}
+                    Você é um assistente técnico especialista em impressoras e toners da prefeitura. 
+                    Responda de forma curta e objetiva à seguinte dúvida do usuário: "${modelName}". 
+                    Se for sobre compatibilidade, informe se já temos esses itens no CATÁLOGO LOCAL ou se precisam ser cadastrados.
+                    Seja muito útil e direto.`;
+
                     const result = await model.generateContent(prompt);
                     const response = await result.response;
                     return NextResponse.json({ result: response.text().trim() });
