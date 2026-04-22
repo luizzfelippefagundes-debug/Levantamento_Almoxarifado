@@ -44,6 +44,39 @@ export default function TonersPage() {
         setToners(tonersData)
     }
 
+    async function handleAIConsult(modelName: string, type: 'printer' | 'toner') {
+        if (!modelName) return alert('Digite o nome do modelo primeiro.')
+
+        try {
+            const res = await fetch('/api/ai/compatibility', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modelName, type })
+            })
+            const data = await res.json()
+
+            if (data.error) {
+                alert(data.tip || data.error)
+                return
+            }
+
+            if (confirm(`A IA sugere estas compatibilidades: ${data.result}\n\nDeseja que eu tente selecionar os itens correspondentes na lista abaixo?`)) {
+                const suggestions = data.result.toLowerCase().split(',').map((s: string) => s.trim())
+                if (type === 'printer') {
+                    const idsToSelect = toners.filter(t => suggestions.some((s: string) => t.name.toLowerCase().includes(s)))
+                        .map(t => t.id)
+                    setSelectedToners(prev => Array.from(new Set([...prev, ...idsToSelect])))
+                } else {
+                    const idsToSelect = printers.filter(p => suggestions.some((s: string) => p.name.toLowerCase().includes(s)))
+                        .map(p => p.id)
+                    setSelectedPrinters(prev => Array.from(new Set([...prev, ...idsToSelect])))
+                }
+            }
+        } catch (error) {
+            alert('Erro ao consultar a IA.')
+        }
+    }
+
     async function handleAddPrinter(e: React.FormEvent) {
         e.preventDefault()
         const res = await fetch('/api/printers', {
@@ -80,6 +113,36 @@ export default function TonersPage() {
         }
     }
 
+    async function handleVisionDetect(type: 'printer' | 'toner') {
+        const input = document.createElement('input')
+        input.type = 'file'
+        input.accept = 'image/*'
+        input.capture = 'environment'
+        input.onchange = async (e: any) => {
+            const file = e.target.files[0]
+            if (file) {
+                const reader = new FileReader()
+                reader.onload = async (event) => {
+                    const base64 = event.target?.result as string
+                    const res = await fetch('/api/ai/compatibility', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ image: base64 })
+                    })
+                    const data = await res.json()
+                    if (data.result && data.result !== 'Não identificado') {
+                        if (type === 'printer') setNewPrinterName(data.result)
+                        else setNewTonerName(data.result)
+                    } else {
+                        alert('IA não conseguiu identificar o modelo na foto. Tente tirar uma foto mais nítida da etiqueta.')
+                    }
+                }
+                reader.readAsDataURL(file)
+            }
+        }
+        input.click()
+    }
+
     return (
         <div className={styles.page}>
             <header className={styles.header}>
@@ -91,13 +154,31 @@ export default function TonersPage() {
                 <section className="card">
                     <h2>Nova Impressora</h2>
                     <form onSubmit={handleAddPrinter} className={styles.formContainer}>
-                        <input
-                            className="input"
-                            placeholder="Modelo da Impressora"
-                            value={newPrinterName}
-                            onChange={e => setNewPrinterName(e.target.value)}
-                            required
-                        />
+                        <div className={styles.inputWithAI}>
+                            <input
+                                className="input"
+                                placeholder="Modelo da Impressora"
+                                value={newPrinterName}
+                                onChange={e => setNewPrinterName(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className={`${styles.aiBtn} btn`}
+                                onClick={() => handleAIConsult(newPrinterName, 'printer')}
+                                title="Consultar Toners Compatíveis com IA"
+                            >
+                                ✨ IA
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.photoBtn} btn`}
+                                onClick={() => handleVisionDetect('printer')}
+                                title="Identificar por Foto"
+                            >
+                                📷
+                            </button>
+                        </div>
                         <input
                             className="input"
                             placeholder="Marca"
@@ -129,13 +210,31 @@ export default function TonersPage() {
                 <section className="card">
                     <h2>Novo Toner</h2>
                     <form onSubmit={handleAddToner} className={styles.formContainer}>
-                        <input
-                            className="input"
-                            placeholder="Modelo do Toner"
-                            value={newTonerName}
-                            onChange={e => setNewTonerName(e.target.value)}
-                            required
-                        />
+                        <div className={styles.inputWithAI}>
+                            <input
+                                className="input"
+                                placeholder="Modelo do Toner"
+                                value={newTonerName}
+                                onChange={e => setNewTonerName(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className={`${styles.aiBtn} btn`}
+                                onClick={() => handleAIConsult(newTonerName, 'toner')}
+                                title="Consultar Impressoras Compatíveis com IA"
+                            >
+                                ✨ IA
+                            </button>
+                            <button
+                                type="button"
+                                className={`${styles.photoBtn} btn`}
+                                onClick={() => handleVisionDetect('toner')}
+                                title="Identificar por Foto"
+                            >
+                                📷
+                            </button>
+                        </div>
                         <div className={styles.selector}>
                             <label>Impressoras Compatíveis:</label>
                             <div className={styles.checkboxList}>

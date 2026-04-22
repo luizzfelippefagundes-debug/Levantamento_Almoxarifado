@@ -110,3 +110,28 @@
     font-style: italic;
     font-size: 0.875rem;
 }
+
+.inputWithAI {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.aiBtn {
+    background: linear-gradient(135deg, #8b5cf6, #d946ef);
+    color: white;
+    border: none;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    white-space: nowrap;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.aiBtn:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
