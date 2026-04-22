@@ -20,10 +20,20 @@ export default function UnitsPage() {
     }, [])
 
     async function fetchUnits() {
-        const res = await fetch('/api/units')
-        const data = await res.json()
-        setUnits(data)
-        setIsLoading(false)
+        try {
+            const res = await fetch('/api/units')
+            const data = await res.json()
+            if (Array.isArray(data)) {
+                setUnits(data)
+            } else {
+                console.error('Data is not an array:', data)
+                setUnits([])
+            }
+        } catch (error) {
+            console.error('Failed to fetch units:', error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     async function handleSubmit(e: React.FormEvent) {

@@ -38,16 +38,20 @@ export default function InventoryPage() {
     }, [selectedUnitId])
 
     async function fetchData() {
-        const [unitsRes, tonersRes] = await Promise.all([
-            fetch('/api/units'),
-            fetch('/api/toners')
-        ])
-        const [unitsData, tonersData] = await Promise.all([
-            unitsRes.json(),
-            tonersRes.json()
-        ])
-        setUnits(unitsData)
-        setToners(tonersData)
+        try {
+            const [unitsRes, tonersRes] = await Promise.all([
+                fetch('/api/units'),
+                fetch('/api/toners')
+            ])
+            const [unitsData, tonersData] = await Promise.all([
+                unitsRes.json(),
+                tonersRes.json()
+            ])
+            setUnits(Array.isArray(unitsData) ? unitsData : [])
+            setToners(Array.isArray(tonersData) ? tonersData : [])
+        } catch (error) {
+            console.error('Failed to fetch data:', error)
+        }
     }
 
     async function fetchStocks(unitId: string) {
