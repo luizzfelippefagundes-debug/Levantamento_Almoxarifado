@@ -7,12 +7,13 @@ export async function GET(request: Request) {
 
     try {
         const stocks = await prisma.stock.findMany({
-            where: unitId ? { unitId } : {},
+            where: unitId ? { unitId: unitId } : undefined,
             include: { toner: true }
         })
         return NextResponse.json(stocks)
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to fetch stocks' }, { status: 500 })
+        console.error('Fetch stocks error:', error)
+        return NextResponse.json({ error: 'Failed to fetch stocks', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }
 

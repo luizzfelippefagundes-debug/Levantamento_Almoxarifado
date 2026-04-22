@@ -24,6 +24,7 @@ export async function POST(request: Request) {
         })
         return NextResponse.json(unit)
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to create unit' }, { status: 500 })
+        console.error('Create unit error:', error)
+        return NextResponse.json({ error: 'Failed to create unit', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
     }
 }

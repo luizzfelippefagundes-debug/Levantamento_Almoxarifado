@@ -95,22 +95,24 @@ export default function UnitsPage() {
                 ) : units.length === 0 ? (
                     <p>Nenhuma unidade cadastrada.</p>
                 ) : (
-                    <table className={styles.table}>
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Localização</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {units.map((unit) => (
-                                <tr key={unit.id}>
-                                    <td>{unit.name}</td>
-                                    <td>{unit.location || '-'}</td>
+                    <div className="tableContainer">
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Localização</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {units.map((unit) => (
+                                    <tr key={unit.id}>
+                                        <td>{unit.name}</td>
+                                        <td>{unit.location || '-'}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 )}
             </section>
         </div>
