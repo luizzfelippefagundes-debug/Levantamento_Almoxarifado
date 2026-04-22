@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     try {
-        const body = await request.json()
+        const body: { unitId: string, tonerId: string, quantity: string, imageUrl?: string } = await request.json()
         const { unitId, tonerId, quantity, imageUrl } = body
 
         const stock = await prisma.stock.upsert({
