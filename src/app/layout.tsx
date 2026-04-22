@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: "TonnerSurvey - Levantamento de Estoque",
-  description: "Sistema de gerenciamento de toners para escolas",
+  description: "Sistema de gerenciamento de toners para almoxarifado",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -29,6 +29,18 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <link rel="apple-touch-icon" href="/icon-192.png" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {}
+              })()
+            `,
+          }}
+        />
       </head>
       <body>
         <Navbar />

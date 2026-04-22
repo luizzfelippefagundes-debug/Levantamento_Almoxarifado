@@ -8,8 +8,8 @@
   --card: #ffffff;
   --card-foreground: #0f172a;
   --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #2563eb;
+  --input-bg: #ffffff;
+  --input-text: #0f172a;
   --radius: 0.5rem;
 
   --success: #10b981;
@@ -19,14 +19,26 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+[data-theme='dark'] {
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --border: #1e293b;
+  --input-bg: #1e293b;
+  --input-text: #f8fafc;
+}
+
+/* Fallback to system preference if no data-theme is set */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --background: #020617;
     --foreground: #f8fafc;
     --card: #0f172a;
     --card-foreground: #f8fafc;
     --border: #1e293b;
-    --input: #1e293b;
+    --input-bg: #1e293b;
+    --input-text: #f8fafc;
   }
 }
 
@@ -43,35 +55,26 @@ body {
   font-family: var(--font-sans);
   background: var(--background);
   color: var(--foreground);
+  transition: background-color 0.3s, color 0.3s;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--input-bg);
+  color: var(--input-text);
+  min-height: 44px;
 }
 
-button {
-  cursor: pointer;
-  border: none;
-  font-family: inherit;
+.input::placeholder {
+  color: var(--secondary);
+  opacity: 0.7;
 }
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding: 1rem;
-  }
-
-  .card {
-    padding: 1rem;
-  }
-}
-
+/* Rest of the styles... */
 .card {
   background: var(--card);
   color: var(--card-foreground);
@@ -86,12 +89,11 @@ button {
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.25rem;
-  /* Increased padding for touch */
   border-radius: var(--radius);
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
   min-height: 44px;
-  /* Apple recommendation for touch */
+  cursor: pointer;
 }
 
 .btn-primary {
@@ -101,19 +103,19 @@ button {
 
 .btn-primary:hover {
   background: var(--primary-hover);
+  transform: translateY(-1px);
 }
 
-.input {
-  width: 100%;
-  padding: 0.75rem;
-  /* Better for touch */
-  font-size: 1rem;
-  /* Prevents auto-zoom on iOS */
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--background);
-  color: var(--foreground);
-  min-height: 44px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem;
+  }
 }
 
 @media print {
@@ -123,14 +125,9 @@ button {
     display: none !important;
   }
 
-  .container {
-    max-width: none;
-    padding: 0;
-    margin: 0;
-  }
-
   body {
-    background: white;
+    background: white !important;
+    color: black !important;
   }
 }
 
