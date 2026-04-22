@@ -14,12 +14,46 @@ interface Stats {
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
+  const [results, setResults] = useState<{ units: any[], items: any[] } | null>(null)
 
   useEffect(() => {
     fetch('/api/dashboard')
       .then(res => res.json())
       .then(data => setStats(data))
   }, [])
+
+  useEffect(() => {
+    if (searchTerm.length > 2) {
+      handleSearch(searchTerm)
+    } else {
+      setResults(null)
+    }
+  }, [searchTerm])
+
+  async function handleSearch(term: string) {
+    try {
+      const [uRes, pRes, tRes] = await Promise.all([
+        fetch('/api/units'),
+        fetch('/api/printers'),
+        fetch('/api/toners')
+      ])
+      const [uData, pData, tData] = await Promise.all([
+        uRes.json(),
+        pRes.json(),
+        tRes.json()
+      ])
+
+      const filteredUnits = Array.isArray(uData) ? uData.filter((u: any) => u.name.toLowerCase().includes(term.toLowerCase())) : []
+      const filteredItems = [
+        ...(Array.isArray(pData) ? pData.filter((p: any) => p.name.toLowerCase().includes(term.toLowerCase()) || p.brand.toLowerCase().includes(term.toLowerCase())) : []),
+        ...(Array.isArray(tData) ? tData.filter((t: any) => t.name.toLowerCase().includes(term.toLowerCase())) : [])
+      ]
+
+      setResults({ units: filteredUnits, items: filteredItems })
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -36,7 +70,35 @@ export default function DashboardPage() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="btn btn-primary">🔍 Buscar</button>
+          <button className="btn btn-primary" onClick={() => handleSearch(searchTerm)}>🔍 Buscar</button>
+
+          {results && (
+            <div className={styles.searchResults}>
+              {results.units.length > 0 && (
+                <div className={styles.resultGroup}>
+                  <h4>Unidades</h4>
+                  {results.units.map((u: any) => (
+                    <Link key={u.id} href={`/inventory?unitId=${u.id}`} className={styles.resultItem}>
+                      🏢 {u.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {results.items.length > 0 && (
+                <div className={styles.resultGroup}>
+                  <h4>Modelos (Impressoras/Toners)</h4>
+                  {results.items.map((item: any) => (
+                    <Link key={item.id} href="/toners" className={styles.resultItem}>
+                      📦 {item.name} {item.brand ? `(${item.brand})` : ''}
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {results.units.length === 0 && results.items.length === 0 && (
+                <p className={styles.noResults}>Nenhum resultado encontrado.</p>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
