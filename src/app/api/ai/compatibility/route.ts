@@ -84,14 +84,20 @@ export async function POST(request: Request) {
                 lastError = err;
                 console.warn(`Model ${modelId} failed:`, err.message);
 
-                // If it's an API key invalid error, don't bother trying other models
+                // Fatal error: API key is dead
                 if (err.message.includes("API key not valid")) break;
 
-                // If model not found, try next one
-                if (err.message.includes("not found")) continue;
-
-                break; // Other errors: stop and show
+                // Quota or service errors: try the next model in the list
+                console.log(`Tentando próximo modelo após erro no ${modelId}...`);
+                continue;
             }
+        }
+
+        if (lastError?.message?.includes("429") || lastError?.message?.includes("quota")) {
+            return NextResponse.json({
+                error: "IA Temporariamente Indisponível (Cota)",
+                details: "O Google limitou o uso da IA gratuita por agora. Aguarde 60 segundos e tente novamente. Enquanto isso, você pode buscar/cadastrar itens manualmente."
+            }, { status: 429 });
         }
 
         throw lastError;
