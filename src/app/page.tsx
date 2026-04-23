@@ -79,6 +79,23 @@ export default function DashboardPage() {
     }
   }
 
+  async function compressImage(base64: string): Promise<string> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800; // Resolução suficiente para IA ler modelos
+        const scale = MAX_WIDTH / img.width;
+        canvas.width = MAX_WIDTH;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', 0.7)); // Qualidade 70%
+      };
+    });
+  }
+
   async function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -90,11 +107,13 @@ export default function DashboardPage() {
     try {
       const reader = new FileReader()
       reader.onloadend = async () => {
-        const base64 = reader.result as string
+        const rawBase64 = reader.result as string
+        const optimizedBase64 = await compressImage(rawBase64)
+
         const res = await fetch('/api/ai/compatibility', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64 })
+          body: JSON.stringify({ image: optimizedBase64 })
         })
         const data = await res.json()
         if (data.result) {
