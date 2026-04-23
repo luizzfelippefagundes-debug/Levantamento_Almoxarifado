@@ -33,7 +33,8 @@ export async function POST(request: Request) {
         `;
 
         // Try models available in the current environment (2026)
-        const modelsToTry = ["gemini-2.0-flash", "gemini-pro"];
+        // gemini-1.5-flash is very reliable and has higher quotas
+        const modelsToTry = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-pro"];
         let lastError = null;
 
         for (const modelId of modelsToTry) {
