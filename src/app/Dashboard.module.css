@@ -27,7 +27,7 @@
     color: white;
     box-shadow: var(--shadow-lg);
     position: relative;
-    overflow: hidden;
+    /* SEM overflow:hidden para não cortar a busca suspensa */
 }
 
 .header::after {
@@ -40,6 +40,14 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.greeting,
+.searchBox {
+    position: relative;
+    z-index: 1;
 }
 
 .greeting h1 {
@@ -70,8 +78,8 @@
 .searchBox input {
     flex: 1;
     border: none;
-    background: white;
-    color: #1e293b;
+    background: white !important;
+    color: #1e293b !important;
     padding: 0.8rem 1.2rem;
     border-radius: 12px;
     font-size: 1rem;
